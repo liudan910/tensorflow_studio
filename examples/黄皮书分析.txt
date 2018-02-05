@@ -1,0 +1,8 @@
+1. 通过修改源代码(增加、删减，修改），进行分析（ dropout, relu，隐藏层，隐藏层层数的作用）
+
+mnist_softmax.py 学习率0.5 y=xw+b ： 0.91
+学习率0.001  + 引入隐藏层 + 激活函数relu + dropout函数 : AdamOptimizer优化器：0.97 ，  GradientDescentOptimizer优化器 : 0.7
+
+QA: 将mnist_softmax改造成与mnist_with_summaries.py结构一致(mnist_softmax_modify.py)，为什么识别效果差
+  使用tensorboard可视化分析 结构是否真的一致
+  比较二者的精度

@@ -1,0 +1,104 @@
+一 使用词嵌入word embedding 原因：
+   传统做法将词表示成离散符号，缺点在于没有提供足够的信息来体现词语之间的某种关联。
+   向量空间模型VSMs：将词语表示为一个连续的词向量，并且语义接近的词语对应的词向量在空间上也是接近的。
+          VSMs原理：基于分布式假说： 如果两个词的上下文相同，那么这两个词所表达的语义也是一样的。即两个词的语义是否相似，取决于两个词
+                                    的上下文内容，上下文相同表示两个词是可以等价替换。
+          基于分布式假说理论生成方法两类：
+                    计数法：在大型语料中统计词语及邻近的词的共现频率，然后将之为每个词都映射为一个稠密的向量表示 。
+                    预测法：直接利用词语的邻近信息来得到预测词的词向量（词向量通常作为模型的训练参数）
+   word2vec使用预测法，用于高效学习word embedding,分为：
+                    1 CBOW ：从输入的上下文信息来预测目标词。  -更适合应用在小规模 数据集上
+                    2 Skip-Gram模型：从目标词来预测上下文信息。-适合用于大规模数据集中。
+二 噪声-对比训练 Noise-Contrastive
+    最大似然估计：
+        通过 softmax函数得到前面的词语h的情况下，目标Wt出现的最大概率 。
+        p(Wt|h) = softmax(score(Wt,h))
+        softmax(Xi)= exp(Xi)/( exp(X0) + exp(X1)+.....+exp(Xn))  //softmax 函数将多分类值转化为概率分布
+        score(Wt,h)为词和上下文h的兼容程度
+        以softmax函数为优化目标，意义使得真实值的概率尽可能地高。
+
+    由于最大似然估计计算量大，且对于word2vec特征学习，可以不需要一个完整的概率模型。
+    故使用二分类器(LR) 来区分目标词和词库中其他的k个词。
+    负采样技术Negative Sampling： Noise-Contrastive的简化版本。
+        目标函数：Jneg = logQp(D=1 | Wt,h) + k E[logQp(D=0|w',h)]
+        logQp(D=1 | Wt,h)为二元逻辑回归的概率 ，输入的embedding vector p,上下文为h的情况下词语w, 出现在数据集D的概率 。
+        后面部分为k个从w'【噪声数据集】中随机选择k个对立的词语，不出现在数据集D中的概率(log)形式的期望值 。
+        目标函数意义： 尽可能的 [分配(assign)] 高概率给真实的目标词，而低概率给其他 k 个 [噪声词]
+     word2vec实际中使用NCE（noise-contrastive estimation):
+        保证逼近原有的softmax函数（选择k个噪声点作为整个噪声数据的代表）
+
+三 训练 skip-gram模型
+data: the quick brown fox jumped over the lazy dog
+skip-window = 1 即预测左右各一个词
+pairs:上下文信息，对应的词
+      ([the,brown], quick) ,([quick, fox],brown),……
+   skip-gram模型是通过输入的目标词来预测其对应的上下文信息
+   故目标是通过quick来预测the, brown
+    转为输入，输出形式如下：
+    (quick, the) (quick, brown), (brown,quick),(brown,fox) ……
+ 优化函数：Jneg
+ 使用SGG进行最优化求解,并使用mini-batch方法（batch_size在16到512之间）
+
+训练过程：
+第t步，目标是得到一个实例输入quick的输出 ，选择num_noise个噪声数据，假设num_noise=1,
+假设选择[sheep]作为噪声对比词，那么此时的目标函数值如下：
+Jneg = logQp(D=1 | the, quick) + log(Qp(D=0| sheep, quick)
+目标是更新embedding参数p以增大目标函数值，更新方式是计算损失函数对参数 p的导数，然后使得参数p朝梯度方向进行调整，
+当这个过程在训练集上执行多次后，产生效果是使得embeddig vector的值发生改变，使得模型最终能够很好地区别目标词和噪声词
+
+
+
+
+总结：
+模型： 通过中心词预测上下文。
+  exp: 句子 we are pretty girl.
+  （输入，label）：（pretty，are),（pretty girl)
+   通过查找表得到的embedding表示的(input，label）embed: ([0,0,0,1,0],[1,0,0,0,])
+   input * weight， biases ->softmax :得到一个概率分布 见噪声-对比训练
+   loss: NCE损失 。
+
+   评估方法：
+    logits =  input*weights+biases
+    labels_one_hot = tf.one_hot(labels,n_classes)  #one_hot方法。如有3个分类,3维向量表示 。[1,0,0],[0,1,0],[0,0,1]
+    计算交叉熵（tf.nn.sigmoid_cross_entropy_with_logits（labels_one_hot，logits）
+
+
+通过噪声-对比训练 ；即二分类训练过程：
+ 1 负采样 噪声数据如 (sheep, pretty)
+ 2.目标优化函数  Jneg = logQp(D=1 | are, pretty) + log(Qp(D=0| sheep,preety ) #采样个数假设为1
+  前者为 are pretty 出现在数据D中的log概率,后者 为sheep pretty不出现在D中的log概率 。
+ 3.上述过程为一个二分类训练过程。
+
+tensorflow中的实现 ：
+1. 定义词嵌入矩阵，并随机初始化
+embeddings = tf.Variable(tf.random_uniform([vocabulary_size, embedding_size], -1.0, 1.0))
+2.噪声-对比估计的损失函数在输出的逻辑回归模型定义，故需定义词库中每个词的权重和偏置
+nce_weights = tf.Variable(tf.truncated_normal([vocabulary_size, embedding_size],
+    stddev=1.0 / math.sqrt(embedding_size)))
+nce_biases = tf.Variable(tf.zeros([vocabulary_size]))
+3 定义skip-gram模型
+  1假设已将语料库中的词整数化。即每个词以code表示  见word2vec_analysis
+输入单词列表words ['anarchism', 'originated', 'as', 'a', 'term', 'of', 'abuse', 'first',……]
+code表示 ：       [8, 9, 10, 4, 5, 2, 11, 12, 3, 13, 14, 15, 16, 17, 1]
+  2创建输入
+train_inputs = tf.placeholder(tf.int32, shape=[batch_size])
+train_labels = tf.placeholder(tf.int32, shape=[batch_size, 1])
+输入：[14    14  5   5   2   2   8   8]
+标签：[[ 4][ 5][14][ 2][ 8][ 5][ 3][ 2]]
+  3查找(look up) batch中的输入词对应的vector
+ embed = tf.nn.embedding_lookup(embeddings, train_inputs)
+  得到每个词对应的embedding
+  4.使用噪声-对比策略来预测目标词
+  loss = tf.reduce_mean(
+   tf.nn.nce_loss(nce_weight, nce_baises, embed,train_labels,
+                    num_sampled,vocabulary_size))
+   5 使用随机梯度下降来优化
+   optimizer = tf.train.GradientDescentOptimizer(learning_rate=1.0).minimize(loss)
+  6 模型的训练
+  for inputs, labels in generate_batch(...):
+        feed_dict = {training_inputs: inputs, training_labels: labels}
+         _, cur_loss = session.run([optimizer, loss], feed_dict=feed_dict)
+
+
+
+
