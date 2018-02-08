@@ -1,0 +1,93 @@
+Character-level convolutional networks for Classification
+字符级CNN应用于分类
+使用字符级特征
+1 对比 传统模型bag-of-words, n-grams和深度学习模型word-based（词级别特征） CNN网络和RNN网络
+2 方法：将文本处理为字符级的信号作为输入，只使用分类任务作为CNN能力验证的方式。
+3 相关研究对比：前人的一些工作是字符级n-grams线性分类器，合并字符级特征到CNN中，特别是，CNN方法使用词作为基础，从词中提取字符极特征或词n-grams级别形成分布式表示 ，应用在部分语音标全和信息获取上有得到提高。
+4 亮点：本文是首次提出将CNN应用到字符上的。
+强调：deep ConvNets不需要词相关知识如语法或语义结构。这种工程的简法性对于单个系统应用于多种语言来说非常重要。使用字符有非字符合并的优势如误拼，表情符号。
+5 关键模型：
+时态卷积主要部分是1-D卷积
+卷积层： h(y) = f(x)*g(y*d-x+c) 之和，x从1到k
+    其中，g(x)为输入函数[1,l],f(x)为核函数[1,k]  d为stride步幅，h(y)为卷积 [1, (l-k+1)/d]], c=k-d+1为偏置常量
+时态池最大池化层： h(y) =max(y*d-x+c) x从1到k
+    池化层使得我们可以训练超过6层深度的卷积。
+模型中使用的非线性是整流/阈值函数： h(x)=max{0,x} ，这可以使我们的卷积层同整流线性单元(Rectified linear units, ReLus)相似。
+优化器： 随机梯度下降SGD(stochastic gradient descent), minibatch size = 128 动量=0.9 学习率0.01， 平均每3个迭代10 次
+ 每个迭代使用固定数量的随机训练样例，分类上一致采样。
+6 字符数字化：
+模型接收编码后的字符作为输入。规定m长度的字母表，编码作为输入，使用1-of-m编码数字化每个字符（or one-hot编码）
+然后字符编列就被转化为m维向量的序列，序列长度为L0
+字母表：abcdefghi……z012……9-,;.!?……
+随后区分大写字母和小写字母表比较模型。
+7 模型设计：
+两个卷积网络：一个大，一个小。
+模型结构：
+（卷积层
+  最大池化层）六组
+  全连接层
+  dropout层  pro=0.5
+  全连接层
+  dropout层  pro=0.5
+  全连接层                       也是logit层
+8 传统方法：人工构建特征提取器+线性模型，使用多项式LR作为分类器。
+bag-of-words模型:对每个数据集，从训练集挑选5000个高频单词，并使用单词统计数作为特征。
+bag-of-ngram模型：对每个数据集，从训练集挑选500，000个高频n-grams，特征值的计算方式与bag-of-ngram相同
+bag-of-means of word embedding:每个数据集，在训练集上学好的word2vec上使用k-means，所有的词中每个词至少在训练集中出现5次，词向量维度=300
+                              特征计算方式与bag-of-words模型相同，聚类数量=5000
+
+9 深度学习方法
+word-based ConvNet：大量的文本分类中的词级别卷积网络，区别在于选择预训练还是端到端学习词表示。
+        比较：word2vec embedding：词向量，使用预训练(pre-trained)的词向量集合并不断调整(fine-tune)它
+            和 lookup tables
+简化版LSTM:
+    比较：RNN模型 和 namely LSTM
+    其中LSTM使用指定的word2vec embedding(size=300)，该模型形式：使用所有LSTM单元输出形成一个特征向量，然后在特征向量上使用
+    多项式逻辑回归。
+                  Means
+      |      |      |       |
+    LSTM ->LSTM ->…… —>LSTM
+10 字母表选择：
+  英文字母表，需选择用大写还是小写字母。
+11 大规模 数据集 和结果
+ 数据集         分类       训练集  测试集  Epoch Size
+ AG新闻语料
+ 搜狗新闻语料
+ DBPedia
+ Yelp Review Polarity
+ Yelp Review Full
+ Yahoo! Answers
+ Amazon Review Full
+ Amazon Review Polarity
+
+Review:评论
+结： 论文1与论文中所使用的模型设计、配置一样。 论文发表人相同。
+两篇论区别：
+论文1:Text understanding from scratch 证明使用CNN做文本理解 ，不需要语义、语法等知识，
+论文2：Character-level convolutional networks for Chassification
+提出字符级别的CNN应用于分类任务。
+
+附： 不存在所有种类数据集都能表现效果很好。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
