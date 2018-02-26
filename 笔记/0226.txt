@@ -1,46 +1,101 @@
 ！！！！注重 论文参考引用到的其他论文及文献。
 一 在文章A Survey on Dialogue Systems.(对话系统调查）中
- pipeLine方案：NLU->state tracker->policy learning->NLG
- Language Understing一节中内容“Deep learning techniques have been successively applied in intent detection [15;84;112].
- In particular,[25] used convolutional neural networks(CNN) to extract query vector representations as features for query classfication.
- The CNN-based classification framework also resembeld[29] and [74]."
- 后面几个数字代表参考的论文编号，都属于经典论文
- 意图检测的：
-    15 Use of kernel deep convex networks and end-to-end learning for spoken language understanding.   （*） 语义识别
-    84 Towards deeper understanding:Deep convex networks for semantic utterance classification.    （*）场景分类
-  查询分类：
-    5:Query intent dection using convolutional neural networks.             （*） 场景分类
-    29:learning deep structured semantic models for web search using clickthrough data.    （*）场景分类
-    74:learning semantic representations using convolutional neural networks for web search.    （*）场景分类
-"slot filling...sequence labeling problem..[17]and[15]use deep belief networks(DBN).
-[51;115;66;113] applied RNN for slot filling"
-  槽位填充被定义为序列标注问题。
-    17： deep belief network based semantic taggers for spoken language understanding.   （*）  语义识别
-    113: Spoken language understanding using long short-tem memory neural networks   （*） 语义识别
-状态跟踪：
-    "[58] developed RNN dialog state tracking models.It first used all the data available to train a very general belief tracing model, and then specialized the general model for each domain to learn the domain-specific behavior "
-    58：首次提出使用所有数据来训练一个通用状态跟踪模型，然后再针对每个领域domain具体化这个通用模型来学习 domain-specific行为
-    Muti-domain dialog state tracking using recurrent neural networks.    （*）pipe方案(!!!!待读）
-策略学习:
- [14]:Strategic dialogue management via deep reinforcement learning   （*）pipe方案(!!!!待读）
-     可以使用强化学习进行end-to-end训练 ; 在策略对话中应用强化学习，同时学习特征表示和对话策略. (怎么用强化学习来同时学习特征表示和对话策略？）
- [111]:Building task-oriented dialogue systems for online shopping（*）pipe方案(!!!!待读）
-       首先基于规则代理 作为热启动, 然后在规则产生的action上进行监督学习；
-
-
+  任务型对话系统包括pipeline和end-to-end方法.
+     pipeLine方案：NLU->state tracker->policy learning->NLG;  依次连接。
+     NLU理解语义并以内部状态来表示，然后根据对话状态相关策略给出动作，最后转化为外部形式。
 
 pipeLine方案设计：
-    NLU:
+    NLU:  将用户句子格式化为预定义的语义slot
       意图分类/query classification :CNN、 deep belief network
-      槽位填充/slot filling :LSTM、 deep belief network
-    State Tracking:
+      字级别信息提取： 槽位填充/slot filling :LSTM、 deep belief network
+    State Tracking: 管理对话历史，输出当前状态
       也称 slot filling (State Track与NLU中的slot filling是一回事吗？)
       每个轮次每个slot的概率分布。
-    policy learning;
+    policy learning;基于当前状态学习下一个系统动作
+    NLG: 将所选择的动作映射为外部形式，并产生回复。
+ 相关论文：
+     Language Understing一节中内容“Deep learning techniques have been successively applied in intent detection [15;84;112].
+     In particular,[25] used convolutional neural networks(CNN) to extract query vector representations as features for query classfication.
+     The CNN-based classification framework also resembeld[29] and [74]."
+     后面几个数字代表参考的论文编号，都属于经典论文
+     意图检测的：
+        15 Use of kernel deep convex networks and end-to-end learning for spoken language understanding.   （*） 语义识别
+        84 Towards deeper understanding:Deep convex networks for semantic utterance classification.    （*）场景分类
+      查询分类：
+       # 5:Query intent dection using convolutional neural networks.             （*） 场景分类
+        29:learning deep structured semantic models for web search using clickthrough data.    （*）场景分类
+        74:learning semantic representations using convolutional neural networks for web search.    （*）场景分类
+        19：Query Intent Detection using Convolutional Neural network  （*）场景分类
+    "slot filling...sequence labeling problem..[17]and[15]use deep belief networks(DBN).
+    [51;115;66;113] applied RNN for slot filling"
+      槽位填充被定义为序列标注问题,句子中的词有语义标签。
+        17： deep belief network based semantic taggers for spoken language understanding.   （*）  语义识别
+        113: Spoken language understanding using long short-tem memory neural networks   （*） 语义识别
+    状态跟踪：
+        "[58] developed RNN dialog state tracking models.It first used all the data available to train a very general belief tracing model, and then specialized the general model for each domain to learn the domain-specific behavior "
+        58：首次提出使用所有数据来训练一个通用状态跟踪模型，然后再针对每个领域domain具体化这个通用模型来学习 domain-specific行为
+        Muti-domain dialog state tracking using recurrent neural networks.    （*）pipe方案(!!!!待读）
+    策略学习:
+     [14]:Strategic dialogue management via deep reinforcement learning   （*）pipe方案(!!!!待读）
+         可以使用强化学习进行end-to-end训练 ; 在策略对话中应用强化学习，同时学习特征表示和对话策略. (怎么用强化学习来同时学习特征表示和对话策略？）
+     [111]:Building task-oriented dialogue systems for online shopping（*）pipe方案(!!!!待读）
+           首先基于规则代理 作为热启动, 然后在规则产生的action上进行监督学习；
+     对话生成：
+       Context-aware natural language generation for spoken dialogue systems.
+      合并问题信息、语义槽值和对话act类型 进行 基于LSTM框架 的编码-解码 来产生正确回答
+      Sequence-to-sequence generation for spoken dialogue via deep syntax trees and strings
+     基于语法树的序列到序列模型
 
+pipeline方案限制
+1.信用分配问题：终端用户的反馈很难传播到每一个顶端模块。
+2.内部依赖：一个组件 的输入依赖于另一个组件 的输出，当 调整一个组件到新环境或训练新数据时，所有其他模块都必须调整以确认全局最优。
+（注释：虽然一个组件输入依赖前一组件输出，但是各组件的训练是独立的，当训练好其中一个组件时，为达到全局最优，得依次训练完其他所有组件。
+ 并且终端反向传播时即进行反馈时，很难传播到顶端模块）
 
+ End-to-End Methods端到端方法
+使用单一模块并与一个结构化外部数据库交互。
+相关论文：
+   [84] A network-based end-to-end trainable task-oriented dialogue system           (!!!核心论文，还需再看一次）
+      端到端训练的任务型对话系统。
+      Learning end-to-end goal-oriented dialog       （待看）
+   将对话系统学习当作一个学习 对话历史->系统回复的映射，并应用编码-解码模型来训练整个系统。
+   然而系统是以监督方式训练，不仅需要大量训练数据，也有可能由于缺少对话控制探索而找不到好的健壮的策略。
+   [107] Towards end-to-end learning for dialog state tracking and management using deep reinforcement learning
+   首先提出了一个端到端的强化学习方法来 联合对话管理中的对话状态跟踪 与 策略学习，以优化系统更加健壮。
+   [36] End-to-end task completion neural dialogue systems.                  (!!!核心论文,待看）
+   有些对话中，agent会问一系列Yes/No问题来寻找正确答案。
+   该论文中将end-to-end系统当作一个任务完成神经对话系统，最终目标是完成一个任务，如电影票预订。
+   [90] End-to-end lstm-based dialog control optimized with suppervised and reinforcement learning( !!!核心论文，没全看懂，还需再看）
+   外部数据库的作用与缺点：
+    任务型对话系统经常需要查询外部知识库，如 [84;90;36] 将系统查询转发给知识库，基于属性检索实体，对输入进行语义分析可以
+    构造一个符号查询表示用户目标状态。
+    好处在于：1.语义分析不确定时，检索不到结果，2.检索操作是不可微的，因此分析和对话策略是分开训练，从而使得在线end-to-end学习从用户反馈困难。
 
+   [15]key-value retrieval networks for task-oriented dialogue
+    在entries of 知识库上，使用可微的基于注意力的key-value检索机制来增强RNN网络，出发点是key-value记忆网络。
+    [12] Towards end-to-end reinforcement learning of dialogue agents for information access知识库上替换符号查询为"soft"分布，指示用户感 兴趣的实体。
+    [89]  Hybird code networks:practical and efficient end-to-end dialog   control with supervised and reinforcement learning   (!!!核心论文,待看）
+    合并RNN与domain-specific knowledge 编码 为software系统动作模板。
 
+( 注意，这些论文很多出自于 Proceedings of the 55th Annual Meeting of the Association for compurational Linguistics.
+  可以多关注一下 国际著名的会议论文集)
+
+总结：
+  趋势：
+      任务型与非任务型对话系统 ， 端到端框架是一个趋势
+      任务完成模型（task completion)也朝着端到端风格发展即 强化学习表示 状态动作state-action空间 ，且合并了所有的pipelines.
+  值得注意的是：端到端模型效果目前仍然还 不是很理想。
+  可能的研究方向：
+    快速热身：
+        尽管 近年来端到端模型引了大多数研究的注意力，在实际的对话工程中，我们仍然需要依赖传统的pipelines，尤其是在新领域(new domain)热身阶段。
+    (一个领域 domain如电影票预订 ）.具体领域的对话数据有限，数据收集难，对话系统构造难。故我们需要一个热身阶段，来保证对话代理有与人类交互的阶段。
+    {就是指： 先使用比较保险的pipeline方案。再去探索有潜力的深度学习方案！！！！}
+    深度理解：
+        系统的回复缺乏多样性，有时候是无意义的，重复的。因此需要深度理解 真实世界。
+        因为互联网上有海量的知识 可以获取，对话代理可能利用这种非结构化的知识源来获得理解，以变更更加智能。
+        {利用互联网知识，做深度理解 }
+    隐私保护：
+        对话数据需要保护用户隐私。
 评价：
 注重 论文参考引用到的其他论文及文献。
 上述论文也是nlp_knowledge里放的几篇, 但都不是 we实现（CNN意图分类）核心论文。
