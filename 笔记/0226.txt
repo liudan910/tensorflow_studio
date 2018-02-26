@@ -1,0 +1,50 @@
+！！！！注重 论文参考引用到的其他论文及文献。
+一 在文章A Survey on Dialogue Systems.(对话系统调查）中
+ pipeLine方案：NLU->state tracker->policy learning->NLG
+ Language Understing一节中内容“Deep learning techniques have been successively applied in intent detection [15;84;112].
+ In particular,[25] used convolutional neural networks(CNN) to extract query vector representations as features for query classfication.
+ The CNN-based classification framework also resembeld[29] and [74]."
+ 后面几个数字代表参考的论文编号，都属于经典论文
+ 意图检测的：
+    15 Use of kernel deep convex networks and end-to-end learning for spoken language understanding.   （*） 语义识别
+    84 Towards deeper understanding:Deep convex networks for semantic utterance classification.    （*）场景分类
+  查询分类：
+    5:Query intent dection using convolutional neural networks.             （*） 场景分类
+    29:learning deep structured semantic models for web search using clickthrough data.    （*）场景分类
+    74:learning semantic representations using convolutional neural networks for web search.    （*）场景分类
+"slot filling...sequence labeling problem..[17]and[15]use deep belief networks(DBN).
+[51;115;66;113] applied RNN for slot filling"
+  槽位填充被定义为序列标注问题。
+    17： deep belief network based semantic taggers for spoken language understanding.   （*）  语义识别
+    113: Spoken language understanding using long short-tem memory neural networks   （*） 语义识别
+状态跟踪：
+    "[58] developed RNN dialog state tracking models.It first used all the data available to train a very general belief tracing model, and then specialized the general model for each domain to learn the domain-specific behavior "
+    58：首次提出使用所有数据来训练一个通用状态跟踪模型，然后再针对每个领域domain具体化这个通用模型来学习 domain-specific行为
+    Muti-domain dialog state tracking using recurrent neural networks.    （*）pipe方案(!!!!待读）
+策略学习:
+ [14]:Strategic dialogue management via deep reinforcement learning   （*）pipe方案(!!!!待读）
+     可以使用强化学习进行end-to-end训练 ; 在策略对话中应用强化学习，同时学习特征表示和对话策略. (怎么用强化学习来同时学习特征表示和对话策略？）
+ [111]:Building task-oriented dialogue systems for online shopping（*）pipe方案(!!!!待读）
+       首先基于规则代理 作为热启动, 然后在规则产生的action上进行监督学习；
+
+
+
+pipeLine方案设计：
+    NLU:
+      意图分类/query classification :CNN、 deep belief network
+      槽位填充/slot filling :LSTM、 deep belief network
+    State Tracking:
+      也称 slot filling (State Track与NLU中的slot filling是一回事吗？)
+      每个轮次每个slot的概率分布。
+    policy learning;
+
+
+
+
+评价：
+注重 论文参考引用到的其他论文及文献。
+上述论文也是nlp_knowledge里放的几篇, 但都不是 we实现（CNN意图分类）核心论文。
+作者在写“对话系统调查”参考了100多篇论文。
+
+
+二 文章 A neural network method for Nature Language Process(2017) 自然语言处理中的神经网络方法

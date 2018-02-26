@@ -11,20 +11,8 @@
     三 数据的量级
 
 
-2.NLP智能助理（阿里小蜜） - 任务型对话
-                  作用                                     模型
-  InentWork: 明确意图，学一个embedding表征用户意图     CNN网络                            （意图识别模型）
-  belief tracker: 状态跟踪。 槽位提取 。               point work, BILSTM(基于序列的标注，语义分类模型）
-  policy network: 用户当前问题-槽位信息 + 系统上一个问题 + 历史槽位信息  -> 全连接网络 ->softma输出
 
-qi用户当前问题，a(i-1)系统上一轮问题，历史Slot信息S(i-1)
-Qi = IntentWork(qi)
-Ci = BeliefTracket(Qi,a(i-1))
-Xi = Qi + Ci + S(i-1)
-Hi = FullyConected(Xi)
-P(.)= softmax(Hi)
-
-3 阿里小蜜架构：Intelligent Assitant
+2 阿里小蜜架构：Intelligent Assitant
 
 
 

@@ -1,0 +1,54 @@
+
+1.NLP智能助理（阿里小蜜） - 任务型对话
+
+                  作用                                     模型
+  InentWork: 明确意图，学一个embedding表征用户意图     CNN网络                            （意图识别模型）
+  belief tracker: 状态跟踪。 槽位提取 。               point work, BILSTM(基于序列的标注，语义分类模型）
+  policy network: 决定 系统的action(反问哪个slot,或者出order)
+
+
+强化学习部分 policy network
+    episode:会话。 如果系统第一次判断当前用户意图为’买机票’，这个就作为一个episode的开始，如果用户购买了机票或退出会话，则认为episode结束 。
+    reward： 获取用户反馈。
+         收集线上用户反馈，初始化时没有经过训练模型直接上线学习，效果较差。 故使用预训练环境 。
+         使用预训练环境 ，获取两部分反馈：1.action policy,另一个是belief tracker. 其中action policy部分使用Policy Gradient方法更新模型，正反馈rewared=1.0
+            负反馈的rewared=-1.0. Belief tracker部分仅使用正反馈作为正例，出现 错误需要人工标出正确的slot.
+    state:主要考虑intentWork出来的user question embeddings、 用户当前问题抽取的slot状态 、 历史slot信息  -> 全连接网络 ->softmax输出到各个actions
+    action: 在订机票场景，action空间是离散的，主要包括对各个slot的反问和Order(下单）：反向时间、反向出发地、反问目地地，和order.这里的action空间可以扩展，加入一些新信息比方询问说多少个同行，用户偏好。
+完整的网络定义：
+    qi用户当前问题，a(i-1)系统上一轮问题，历史Slot信息S(i-1)
+    Qi = IntentWork(qi)
+    Ci = BeliefTracket(Qi,a(i-1))
+    Xi = Qi + Ci + S(i-1)
+    Hi = FullyConected(Xi)
+    P(.)= softmax(Hi)
+  使用的是Policy Gradient算法，具体来说是REINFORCE算法。
+
+  ******************************** =》  借鉴到多轮对话： 在反向传播的目标函数中，加入强化的激励函数。 达到多轮会话的DM模块能有更好的上下文记忆的目的。
+
+
+2.Policy Gradient算法介绍
+
+
+3.条件随机场
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
