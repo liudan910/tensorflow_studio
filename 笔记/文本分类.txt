@@ -1,0 +1,31 @@
+
+一 论文：
+Enriching Word Vectors with Subword Information：利用子词信息丰富词向量
+
+Text understanding from scratch  ： 证明CNN可以做文本理解 ，不需要知道语义，语法知识
+Character-level convolutional networks for Classification： 使用字符级别特征CNN做分类
+
+
+二 https://yq.aliyun.com/articles/128589 从Facebook AI Research开源fastText谈起文本分类：词向量模性、深度表征和全连接
+1 文本分类基准（Benchmarks）
+  有名的用于文本分类的语料库：
+    1. AG’s news articles
+    2. Sogou news corpora
+    3.  Amazon Review Full
+    4. Amazon Review Polarity
+    5. DBPedia
+    6. Yahoo AnswersYelp
+    7. Review Full
+    8. Yelp Review Polarity
+2 简单和复杂模型在这些数据集上都能表现的很好。为了说明这一点，请参考下面两篇论文：
+
+    1. Character-level Convolutional Networks for Text Classification by Yann LeCun et al
+    2. A Bag of Tricks for Efficient Text Classification by Tomas Mikolov et al
+
+    两篇论文采用了相同的数据集，实验结果在准确度（precision）方面大致相等。但是训练时间却相差甚远。第一篇文章中的模型如图1所示，它需要花费数小时训练，而第二个型中提出的fastText模型（和word2vec中的CBOW架构类似，因为作者都是Facebook科学技术Tomas Mikolov，如图3所示）如图2所示，却只需要几秒。
+    第二篇论文中的更轻量级的模型fastText不需要GPU加速，在单颗CPU上运算更快。与“深层”的CNN模型相比，fastText的模型结构是“浅层”的。
+    它由一个联合向量层（joint embedding layer)和一个softmax分类器组成，原理是把句子中所有的词向量进行平均（某种意义上
+    可以理解 为只有一个avg pooling特殊CNN)然后直接接入softmax层
+    如果你有仔细注意过Kaggle比赛中一些获胜方案的话，你会发现复杂的集成类方法占据主导地位。比如最近的  Quora Question Pairs competition和 DeepHack.Turing，其中顶级的方案总是由不同的模型组成：梯度提升方法，RNNs和CNNs。
+
+
